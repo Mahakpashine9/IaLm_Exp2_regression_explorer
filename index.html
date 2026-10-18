@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Regression Explorer | Model Comparison</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <header>
+      <div>
+        <h1>Regression Explorer</h1>
+        <p>Compare datasets, train regression models & discover the best fit</p>
+      </div>
+    </header>
+    <main>
+      <div class="layout">
+        <aside class="left">
+          <section class="card">
+            <h2>⚙️ Controls</h2>
+            <div class="field">
+              <label for="dataset">📊 Dataset</label
+              ><select id="dataset">
+                <option value="housing">Housing Prices (sample)</option>
+                <option value="student">Student Performance (sample)</option>
+                <option value="ev">EV Population (sample)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="method">Regression Method</label
+              ><select id="method">
+                <option value="ols">Ordinary Least Squares (OLS)</option>
+                <option value="ridge">Ridge Regression (L2)</option>
+                <option value="lasso">Lasso Regression (L1)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="feature">Input feature (X)</label
+              ><select id="feature"></select>
+            </div>
+            <button class="btn" id="fitBtn">🚀 Fit Selected Model</button>
+            <button class="btn secondary" id="compareBtn">
+              ▥ Compare All Models
+            </button>
+            <div class="tip">
+              Select a dataset and method, then fit a model. Use “Compare All
+              Models” to rank regression techniques using MAE, MSE, RMSE and R².
+            </div>
+          </section>
+          <section class="card">
+            <h2>📁 Dataset Preview</h2>
+            <div class="mini-stats">
+              <div class="mini">
+                <span>Observations</span><b id="rows">12</b>
+              </div>
+              <div class="mini">
+                <span>Features</span><b id="features">3</b>
+              </div>
+            </div>
+            <div class="preview">
+              <table id="preview">
+                <thead></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <p class="table-note">
+              Illustrative sample rows for UI demonstration.
+            </p>
+          </section>
+        </aside>
+        <section class="right">
+          <div class="workspace-head">
+            <div>
+              <h2 id="title">Housing Prices — Model Analysis</h2>
+              <p id="subtitle">
+                Review model predictions and performance metrics.
+              </p>
+            </div>
+            <span class="pill" id="status">Ready to analyze</span>
+          </div>
+          <nav class="tabs">
+            <button class="tab active" data-tab="overview">📊 Overview</button
+            ><button class="tab" data-tab="comparison">
+              🏆 Model Comparison</button
+            ><button class="tab" data-tab="regression">
+              📈 Regression Plot</button
+            ><button class="tab" data-tab="residuals">🔎 Residuals</button
+            ><button class="tab" data-tab="insights">🎓 Conclusions</button>
+          </nav>
+          <div class="banner" id="banner">
+            <b>Overview:</b> Compare predictions against actual values and
+            review the selected model’s key performance metrics.
+          </div>
+          <div id="overview">
+            <div class="panel-grid">
+              <div class="subcard">
+                <div class="subhead">
+                  <h3>Predicted vs Actual</h3>
+                  <span>Closer to diagonal = better fit</span>
+                </div>
+                <svg id="actualChart" class="chart" viewBox="0 0 600 270"></svg>
+              </div>
+              <div class="subcard summary">
+                <div class="subhead">
+                  <h3>Model summary</h3>
+                  <span>Current selection</span>
+                </div>
+                <div class="line">
+                  <span>Dataset</span><strong id="sumDataset">Housing</strong>
+                </div>
+                <div class="line">
+                  <span>Method</span><strong id="sumMethod">OLS</strong>
+                </div>
+                <div class="line">
+                  <span>Feature</span><strong id="sumFeature">Area</strong>
+                </div>
+                <div class="line">
+                  <span>Target</span><strong id="sumTarget">Price</strong>
+                </div>
+                <div class="line">
+                  <span>Best method</span><strong id="sumBest">—</strong>
+                </div>
+                <div class="insight" id="insight">
+                  Click Fit Selected Model to calculate metrics and show the
+                  model’s result.
+                </div>
+              </div>
+            </div>
+            <div class="metrics">
+              <div class="metric">
+                <div class="ico">📉</div>
+                <div>
+                  <span>Mean Absolute Error</span><b id="mae">—</b
+                  ><small>Lower is better</small>
+                </div>
+              </div>
+              <div class="metric">
+                <div class="ico">🎯</div>
+                <div>
+                  <span>R² Score</span><b id="r2">—</b
+                  ><small>Closer to 1 is better</small>
+                </div>
+              </div>
+              <div class="metric">
+                <div class="ico">📐</div>
+                <div>
+                  <span>Mean Squared Error</span><b id="mse">—</b
+                  ><small>Lower is better</small>
+                </div>
+              </div>
+              <div class="metric">
+                <div class="ico">📏</div>
+                <div>
+                  <span>RMSE</span><b id="rmse">—</b><small>Target units</small>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-grid">
+              <div class="subcard">
+                <div class="subhead">
+                  <h3>Feature vs Target</h3>
+                  <span>Scatter plot</span>
+                </div>
+                <svg
+                  id="scatterChart"
+                  class="chart"
+                  viewBox="0 0 500 220"
+                ></svg>
+              </div>
+              <div class="subcard">
+                <div class="subhead">
+                  <h3>Model performance snapshot</h3>
+                  <span>R² score</span>
+                </div>
+                <div id="overviewBars"></div>
+              </div>
+            </div>
+          </div>
+          <div id="comparison" class="hidden">
+            <div class="bottom-grid">
+              <div class="subcard">
+                <div class="subhead">
+                  <h3>Model comparison — R²</h3>
+                  <span>Higher is better</span>
+                </div>
+                <div id="compareBars"></div>
+              </div>
+              <div class="subcard">
+                <div class="subhead">
+                  <h3>Performance table</h3>
+                  <span>Current dataset</span>
+                </div>
+                <div class="preview">
+                  <table id="compareTable">
+                    <thead></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+                <p class="table-note">
+                  Best model is selected by highest R² for this sample; also
+                  inspect MAE/RMSE and validation results before deciding.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div id="regression" class="hidden">
+            <div class="subcard">
+              <div class="subhead">
+                <h3>Regression fit</h3>
+                <span>Observed points and fitted line</span>
+              </div>
+              <svg id="lineChart" class="chart" viewBox="0 0 600 280"></svg>
+              <div class="equation" id="equation">
+                Fit a model to show the regression equation.
+              </div>
+            </div>
+          </div>
+          <div id="residuals" class="hidden">
+            <div class="bottom-grid">
+              <div class="subcard">
+                <div class="subhead">
+                  <h3>Residuals vs Predicted</h3>
+                  <span>Residual = actual − predicted</span>
+                </div>
+                <svg
+                  id="residualChart"
+                  class="chart"
+                  viewBox="0 0 600 270"
+                ></svg>
+              </div>
+              <div class="subcard">
+                <div class="subhead">
+                  <h3>Absolute error by observation</h3>
+                  <span>Smaller bars are better</span>
+                </div>
+                <svg id="errorChart" class="chart" viewBox="0 0 600 270"></svg>
+                <div class="explain" id="residualNote"></div>
+              </div>
+            </div>
+          </div>
+          <div id="insights" class="hidden">
+            <div class="bottom-grid">
+              <div class="subcard">
+                <div class="subhead">
+                  <h3>Dataset & model observations</h3>
+                </div>
+                <div id="quality"></div>
+              </div>
+              <div class="subcard">
+                <div class="subhead">
+                  <h3>Conclusion</h3>
+                </div>
+                <p class="explain" id="conclusion">
+                  Fit a model to generate a conclusion.
+                </p>
+                <div class="equation" id="conclusionEquation"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+    <div class="footer">
+      Regression Explorer · Interactive front-end prototype · Use real datasets
+      and train/test validation for academic conclusions.
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
